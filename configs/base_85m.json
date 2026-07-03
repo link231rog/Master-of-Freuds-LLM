@@ -1,0 +1,17 @@
+{
+  "model_name": "Master of Freud's LLM (85M)",
+  "vocab_size": 50304,
+  "context_length": 512,
+  "n_embed": 768,
+  "n_head": 12,
+  "n_blocks": 12,
+  "tie_embeddings": true,
+  "device": "cuda",
+  "amp_dtype": "bf16",
+  "seed": 42,
+  "compile": false,
+  "ckpt_dir": "/ephemeral/ckpts",
+  "log_dir": "/ephemeral/logs",
+  "use_wandb": false,
+  "wandb_project": "master-of-freuds-llm"
+}

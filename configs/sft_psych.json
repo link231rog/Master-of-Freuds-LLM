@@ -1,0 +1,16 @@
+{
+  "pretrained_ckpt": "D:/MasterOfFreudsLLM/checkpoints/freud_pretrained.pt",
+  "data_path": "D:/MasterOfFreudsLLM/data_psychology/sft_psych.h5",
+  "out_ckpt": "D:/MasterOfFreudsLLM/checkpoints/freud_sft.pt",
+  "batch_size": 4,
+  "grad_accum": 4,
+  "epochs": 3,
+  "max_steps": -1,
+  "eval_steps": 100,
+  "warmup_steps": 20,
+  "lr": 2e-5,
+  "min_lr": 1e-6,
+  "weight_decay": 0.0,
+  "grad_clip": 1.0,
+  "save_every": 500
+}
