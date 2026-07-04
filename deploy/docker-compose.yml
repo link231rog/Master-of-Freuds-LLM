@@ -1,0 +1,66 @@
+# Master of Freud's LLM — Deployment Stack
+#
+# Two services:
+#   1. model-server : Qwen2.5-0.5B + LoRA with RAG psychology theory (OpenAI-compatible)
+#   2. new-api      : API gateway for management & intranet distribution
+#
+# Usage:
+#   docker compose up -d
+#
+# Prerequisites (gpu2):
+#   - nvidia-container-toolkit installed (for GPU passthrough)
+#   - model checkpoints at /data/checkpoints/qwen_psych_v5/final
+
+services:
+
+  # ── Model Server ──────────────────────────────────────────────
+  model-server:
+    build:
+      context: ..
+      dockerfile: Dockerfile.model
+    ports:
+      - "8000:8000"
+    environment:
+      - MODEL_NAME=Qwen/Qwen2.5-0.5B
+      - MODEL_CHECKPOINT=/checkpoints/qwen_psych_v5/final
+      - MODEL_ID=qwen-psych-v5
+      - DEVICE=cuda
+      - HOST=0.0.0.0
+      - MODEL_PORT=8000
+      - HF_HOME=/cache
+    volumes:
+      - /data/checkpoints:/checkpoints          # LoRA adapter weights (host path)
+      - hf_cache:/cache                          # HuggingFace model cache
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s  # model loading can take a while
+
+  # ── API Gateway (new-api) ─────────────────────────────────────
+  new-api:
+    image: calciumion/new-api:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - TZ=Asia/Shanghai
+      # SQLite database (default, no extra env needed)
+    volumes:
+      - new-api-data:/data
+    restart: unless-stopped
+    depends_on:
+      model-server:
+        condition: service_started
+
+volumes:
+  hf_cache:
+  new-api-data:
