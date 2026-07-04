@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.git/
+.gitignore
+.gitattributes
+README.md
+checkpoints/
+data/
+data_psychology/
+.hf_cache/
+wandb/

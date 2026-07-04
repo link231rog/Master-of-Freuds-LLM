@@ -1,16 +1,28 @@
 """
-Master of Freud's LLM — Web UI
-浏览器打开 http://localhost:5000
-模型升级时改 MODEL_PATH 即可
+Master of Freud's LLM — Web UI (production entry)
+Configurable via env vars:
+  MODEL_CHECKPOINT   path to LoRA checkpoint (default: checkpoints/qwen_psych_v5/final)
+  MODEL_NAME         base model name (default: Qwen/Qwen2.5-0.5B)
+  DEVICE             cuda / cpu (default: cuda if available else cpu)
+  HOST               bind address (default: 0.0.0.0)
+  PORT               listen port (default: 5000)
+  HF_HOME            huggingface cache dir
 """
-
 import os, sys, torch, re
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-MODEL_PATH = os.path.join(ROOT_DIR, "checkpoints", "qwen_psych_v5", "final")
+# --- env config ---
+MODEL_NAME = os.getenv("MODEL_NAME", "Qwen/Qwen2.5-0.5B")
+CHECKPOINT_DIR = os.getenv("MODEL_CHECKPOINT", os.path.join(ROOT_DIR, "checkpoints", "qwen_psych_v5", "final"))
+HF_HOME = os.getenv("HF_HOME", os.path.join(ROOT_DIR, ".cache"))
+DEVICE = os.getenv("DEVICE", "cuda" if torch.cuda.is_available() else "cpu")
+DTYPE = torch.bfloat16 if DEVICE == "cuda" else torch.float32
+HOST = os.getenv("HOST", "0.0.0.0")
+PORT = int(os.getenv("PORT", "5000"))
 
-os.environ["HF_HOME"] = os.path.join(ROOT_DIR, ".cache")
+os.environ["HF_HOME"] = HF_HOME
+
 from flask import Flask, request, jsonify
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
@@ -18,15 +30,18 @@ from peft import PeftModel
 sys.path.insert(0, os.path.join(ROOT_DIR, "scripts"))
 from rag_psychology import build_prompt_with_theory
 
-print("🧠 Loading...")
-tok = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-0.5B", trust_remote_code=True)
-tok.pad_token = tok.eos_token
-model = PeftModel.from_pretrained(
-    AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-0.5B", torch_dtype=torch.bfloat16).to("cuda"),
-    MODEL_PATH
-)
-model.eval()
-print(f"✅ Loaded from {MODEL_PATH}")
+print(f"🧠 Loading base model on {DEVICE}...")
+try:
+    base = AutoModelForCausalLM.from_pretrained(MODEL_NAME, torch_dtype=DTYPE, trust_remote_code=True)
+    tok = AutoTokenizer.from_pretrained(MODEL_NAME, trust_remote_code=True)
+    tok.pad_token = tok.eos_token
+    model = PeftModel.from_pretrained(base, CHECKPOINT_DIR)
+    model = model.to(DEVICE)
+    model.eval()
+    print(f"✅ Loaded ({sum(p.numel() for p in model.parameters())/1e6:.0f}M params)")
+except Exception as e:
+    print(f"❌ Failed to load model: {e}")
+    sys.exit(1)
 
 def clean(text):
     return re.sub(r'[^\u4e00-\u9fff\u3000-\u303f\uff00-\uffef\u0020-\u007e\n，。！？、；：""''（）【】《》-]', "", text).strip()
@@ -95,7 +110,7 @@ def chat():
     theories, enhanced = build_prompt_with_theory(msg)
     theory_names = [t["name"] for t in theories] if theories else []
 
-    ids = tok(tok.apply_chat_template([{"role": "user", "content": enhanced}], tokenize=False, add_generation_prompt=True), return_tensors="pt").to("cuda")
+    ids = tok(tok.apply_chat_template([{"role": "user", "content": enhanced}], tokenize=False, add_generation_prompt=True), return_tensors="pt").to(DEVICE)
     with torch.no_grad():
         out = model.generate(**ids, max_new_tokens=250, temperature=0.85, top_p=0.9, do_sample=True, repetition_penalty=1.1, eos_token_id=tok.eos_token_id, pad_token_id=tok.eos_token_id)
     reply = clean(tok.decode(out[0][ids.input_ids.shape[1]:], skip_special_tokens=True))
@@ -103,5 +118,5 @@ def chat():
     return jsonify({"reply": reply, "theory": ", ".join(theory_names) if theory_names else ""})
 
 if __name__ == "__main__":
-    print("\n🌐 打开 http://localhost:5000")
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    print(f"\n🌐 http://{HOST}:{PORT}")
+    app.run(host=HOST, port=PORT, debug=False)
