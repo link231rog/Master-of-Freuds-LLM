@@ -48,10 +48,17 @@ try:
     base = AutoModelForCausalLM.from_pretrained(MODEL_NAME, torch_dtype=DTYPE, trust_remote_code=True)
     tok = AutoTokenizer.from_pretrained(MODEL_NAME, trust_remote_code=True)
     tok.pad_token = tok.eos_token
-    model = PeftModel.from_pretrained(base, CHECKPOINT_DIR)
+    # Try LoRA; fall back to base model if checkpoint missing
+    if os.path.isdir(CHECKPOINT_DIR):
+        model = PeftModel.from_pretrained(base, CHECKPOINT_DIR)
+        print(f"[model-server]   + LoRA from {CHECKPOINT_DIR}", flush=True)
+    else:
+        model = base
+        print(f"[model-server]   (no LoRA at {CHECKPOINT_DIR}, using base model)", flush=True)
     model = model.to(DEVICE)
     model.eval()
-    print(f"[model-server] ✅ {sum(p.numel() for p in model.parameters())/1e6:.0f}M params | device={DEVICE}", flush=True)
+    n_params = sum(p.numel() for p in model.parameters()) / 1e6
+    print(f"[model-server] ✅ {n_params:.0f}M params | device={DEVICE}", flush=True)
 except Exception as e:
     print(f"[model-server] ❌ Failed to load model: {e}", flush=True)
     sys.exit(1)
@@ -61,12 +68,22 @@ app = Flask(__name__)
 # ── helpers ─────────────────────────────────────────────────────────
 
 def clean(text: str) -> str:
-    """Keep CJK, common punct, basic ASCII. Drop control chars."""
-    return re.sub(
-        # keep CJK, fullwidth, basic ASCII, common punct
+    """Filter training artifacts: role separators, EOS markers, system echoes."""
+    # Remove known training-data artifacts before general clean
+    text = re.sub(r'\u6225(user|assistant|system)', '', text)
+    text = re.sub(r'\bOUNCE\b', '', text)
+    text = re.sub(r'nostalgic\w*', '', text, flags=re.IGNORECASE)
+    text = re.sub(r'\buser\b', '', text)
+    text = re.sub(r'\bassistant\b', '', text)
+    text = re.sub(r'\bsystem\b', '', text)
+    # Keep CJK, common punct, basic ASCII. Drop control chars.
+    text = re.sub(
         r"[^\u4e00-\u9fff\u3000-\u303f\uff00-\uffef\u0020-\u007e\n，。！？、；：\u201c\u201d\u2018\u2019（）【】《》\-]",
         "", text
-    ).strip()
+    )
+    # Collapse multiple newlines
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    return text.strip()
 
 
 def _build_usage(input_ids, output_ids) -> dict:
