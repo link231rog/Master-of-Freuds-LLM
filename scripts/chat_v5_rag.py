@@ -1,7 +1,9 @@
 """Master of Freud's LLM v5+RAG — 交互式聊天（含RAG增强）"""
 import os, sys, torch, re
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-os.environ["HF_HOME"] = "D:/MasterOfFreudsLLM/.cache"
+os.environ["HF_HOME"] = os.path.join(ROOT_DIR, ".cache")
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 from rag_psychology import build_prompt_with_theory
@@ -10,7 +12,7 @@ tok = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-0.5B", trust_remote_code=True)
 tok.pad_token = tok.eos_token
 model = PeftModel.from_pretrained(
     AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-0.5B", torch_dtype=torch.bfloat16).to("cuda"),
-    "D:/MasterOfFreudsLLM/checkpoints/qwen_psych_v5/final"
+    os.path.join(ROOT_DIR, "checkpoints", "qwen_psych_v5", "final")
 )
 model.eval()
 

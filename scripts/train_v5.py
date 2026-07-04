@@ -1,11 +1,13 @@
 """Train v5 with tag-matched psychology data"""
+import os
 import json, os, torch
-os.environ["HF_HOME"] = "D:/MasterOfFreudsLLM/.cache"
-os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.environ["HF_HOME"] = os.path.join(ROOT_DIR, ".cache")
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import LoraConfig, get_peft_model
 
-OUT_DIR = "D:/MasterOfFreudsLLM/checkpoints/qwen_psych_v5"
+OUT_DIR = os.path.join(ROOT_DIR, "checkpoints", "qwen_psych_v5")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 tok = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-0.5B", trust_remote_code=True)

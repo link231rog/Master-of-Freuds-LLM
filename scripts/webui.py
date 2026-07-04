@@ -6,14 +6,16 @@ Master of Freud's LLM — Web UI
 
 import os, sys, torch, re
 
-MODEL_PATH = "D:/MasterOfFreudsLLM/checkpoints/qwen_psych_v5/final"
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-os.environ["HF_HOME"] = "D:/MasterOfFreudsLLM/.cache"
+MODEL_PATH = os.path.join(ROOT_DIR, "checkpoints", "qwen_psych_v5", "final")
+
+os.environ["HF_HOME"] = os.path.join(ROOT_DIR, ".cache")
 from flask import Flask, request, jsonify
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
-sys.path.insert(0, "D:/MasterOfFreudsLLM/scripts")
+sys.path.insert(0, os.path.join(ROOT_DIR, "scripts"))
 from rag_psychology import build_prompt_with_theory
 
 print("🧠 Loading...")

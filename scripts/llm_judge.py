@@ -6,9 +6,10 @@ LLM-as-a-Judge 批量评估脚本
 """
 
 import os, json, torch, sys
-sys.path.insert(0, "D:/MasterOfFreudsLLM/scripts")
-sys.path.insert(0, "D:/MasterOfFreudsLLM")
-os.environ["HF_HOME"] = "D:/MasterOfFreudsLLM/.cache"
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT_DIR, "scripts"))
+sys.path.insert(0, ROOT_DIR)
+os.environ["HF_HOME"] = os.path.join(ROOT_DIR, ".cache")
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
@@ -19,9 +20,9 @@ device = "cuda"
 # ── 加载训练好的模型 ──
 MODELS = {
     "Qwen原版": None,  # 不需要LoRA
-    "v3": "D:/MasterOfFreudsLLM/checkpoints/qwen_psych_v3/final",
-    "v4": "D:/MasterOfFreudsLLM/checkpoints/qwen_psych_v4/final",
-    "v5": "D:/MasterOfFreudsLLM/checkpoints/qwen_psych_v5/final",
+    "v3": os.path.join(ROOT_DIR, "checkpoints", "qwen_psych_v3", "final"),
+    "v4": os.path.join(ROOT_DIR, "checkpoints", "qwen_psych_v4", "final"),
+    "v5": os.path.join(ROOT_DIR, "checkpoints", "qwen_psych_v5", "final"),
 }
 
 # ── 10 个测试问题 ──
@@ -80,7 +81,7 @@ for name, path in MODELS.items():
             results["v5+RAG"] = results.get("v5+RAG", []) + [{"question": q, "response": r2, "mode": "rag"}]
 
 # 保存所有回答
-with open("D:/MasterOfFreudsLLM/data/eval_responses.json", "w", encoding="utf-8") as f:
+with open(os.path.join(ROOT_DIR, "data", "eval_responses.json"), "w", encoding="utf-8") as f:
     json.dump(results, f, ensure_ascii=False, indent=2)
 print(f"✅ 已保存 {sum(len(v) for v in results.values())} 条回答")
 

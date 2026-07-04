@@ -1,14 +1,16 @@
 """
 Train v4 — user's style psychology model
 """
+import os
 import json, os, torch
-os.environ["HF_HOME"] = "D:/MasterOfFreudsLLM/.cache"
-os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.environ["HF_HOME"] = os.path.join(ROOT_DIR, ".cache")
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import LoraConfig, get_peft_model
 
 device = "cuda"
-OUT_DIR = "D:/MasterOfFreudsLLM/checkpoints/qwen_psych_v4"
+OUT_DIR = os.path.join(ROOT_DIR, "checkpoints", "qwen_psych_v4")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 print("Loading data...")

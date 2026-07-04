@@ -9,7 +9,9 @@ import numpy as np
 import tiktoken
 from datasets import load_dataset
 
-OUT_DIR = "D:/MasterOfFreudsLLM/data"
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+OUT_DIR = os.path.join(ROOT_DIR, "data")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 enc = tiktoken.get_encoding("r50k_base")

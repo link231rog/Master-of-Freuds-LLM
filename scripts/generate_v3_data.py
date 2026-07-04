@@ -2,8 +2,11 @@
 Psychology SFT data v3 — with theory names, authors, examples, longer responses
 """
 
+import os
 import json, os, random
-OUT_DIR = "D:/MasterOfFreudsLLM/data_psychology"
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT_DIR = os.path.join(ROOT_DIR, "data_psychology")
 os.makedirs(OUT_DIR, exist_ok=True)
 rng = random.Random(42)
 

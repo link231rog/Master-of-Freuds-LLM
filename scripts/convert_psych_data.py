@@ -2,12 +2,15 @@
 Convert psychology SFT data from HDF5 (r50k_base) to plain text JSONL for Qwen.
 """
 
+import os
 import json, os
 import h5py
 import tiktoken
 
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 enc = tiktoken.get_encoding("r50k_base")
-OUT_DIR = "D:/MasterOfFreudsLLM/data_psychology"
+OUT_DIR = os.path.join(ROOT_DIR, "data_psychology")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 for split, fname, out_name in [

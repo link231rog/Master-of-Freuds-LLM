@@ -3,10 +3,13 @@ Generate high-quality psychology SFT data with concept-to-concern matching.
 Each concern is paired with relevant psychology concepts.
 """
 
+import os
 import json, os, random
 from pathlib import Path
 
-OUT_DIR = "D:/MasterOfFreudsLLM/data_psychology"
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+OUT_DIR = os.path.join(ROOT_DIR, "data_psychology")
 os.makedirs(OUT_DIR, exist_ok=True)
 rng = random.Random(42)
 

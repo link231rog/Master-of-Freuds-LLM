@@ -2,8 +2,9 @@
 Test v4 model on 10 psychology questions
 """
 import os, json, torch
-os.environ["HF_HOME"] = "D:/MasterOfFreudsLLM/.cache"
-os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.environ["HF_HOME"] = os.path.join(ROOT_DIR, ".cache")
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
@@ -12,7 +13,7 @@ tok = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-0.5B", trust_remote_code=True)
 tok.pad_token = tok.eos_token
 
 model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-0.5B", torch_dtype=torch.bfloat16).to(device)
-model = PeftModel.from_pretrained(model, "D:/MasterOfFreudsLLM/checkpoints/qwen_psych_v4/final")
+model = PeftModel.from_pretrained(model, os.path.join(ROOT_DIR, "checkpoints", "qwen_psych_v4", "final"))
 model.eval()
 
 questions = [

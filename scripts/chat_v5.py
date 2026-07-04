@@ -1,6 +1,8 @@
 """Master of Freud's LLM v5 — 交互式聊天"""
 import os, torch, re
-os.environ["HF_HOME"] = "D:/MasterOfFreudsLLM/.cache"
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.environ["HF_HOME"] = os.path.join(ROOT_DIR, ".cache")
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
@@ -8,7 +10,7 @@ tok = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-0.5B", trust_remote_code=True)
 tok.pad_token = tok.eos_token
 model = PeftModel.from_pretrained(
     AutoModelForCausalLM.from_pretrained("Qwen/Qwen2.5-0.5B", torch_dtype=torch.bfloat16).to("cuda"),
-    "D:/MasterOfFreudsLLM/checkpoints/qwen_psych_v5/final"
+    os.path.join(ROOT_DIR, "checkpoints", "qwen_psych_v5", "final")
 )
 model.eval()
 

@@ -2,13 +2,16 @@
 Minimal Qwen LoRA fine-tuning. Pre-tokenizes all data first.
 """
 
+import os
 import json, os, time, torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import LoraConfig, get_peft_model
 
-os.environ["HF_HOME"] = "D:/MasterOfFreudsLLM/.cache"
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+os.environ["HF_HOME"] = os.path.join(ROOT_DIR, ".cache")
 device = "cuda"
-OUT_DIR = "D:/MasterOfFreudsLLM/checkpoints/qwen_psych"
+OUT_DIR = os.path.join(ROOT_DIR, "checkpoints", "qwen_psych")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 # Load tokenizer

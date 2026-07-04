@@ -9,8 +9,10 @@ Usage:
 import os, shutil, json
 from huggingface_hub import HfApi, create_repo, logout
 
-MODEL_DIR = "D:/MasterOfFreudsLLM/checkpoints/qwen_psych_v5/final"
-SPACE_DIR = "D:/MasterOfFreudsLLM/space"
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+MODEL_DIR = os.path.join(ROOT_DIR, "checkpoints", "qwen_psych_v5", "final")
+SPACE_DIR = os.path.join(ROOT_DIR, "space")
 USERNAME = "MasterFreudLLM"  # 你可以改成自己的用户名
 MODEL_REPO = f"{USERNAME}/qwen_psych_v5"
 SPACE_REPO = f"{USERNAME}/freud-psych-analysis"

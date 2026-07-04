@@ -2,8 +2,11 @@
 v4 data generator v2 — fixes theory mismatching, repetition, and content alignment.
 Each concern has a tag; each theory has matching tags → only paired when relevant.
 """
+import os
 import json, os, random
-OUT_DIR = "D:/MasterOfFreudsLLM/data_psychology"
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT_DIR = os.path.join(ROOT_DIR, "data_psychology")
 os.makedirs(OUT_DIR, exist_ok=True)
 rng = random.Random(42)
 

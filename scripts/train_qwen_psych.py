@@ -19,10 +19,12 @@ from transformers import (
     DataCollatorForSeq2Seq,
 )
 
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 MODEL_NAME = "Qwen/Qwen2.5-0.5B"
-OUTPUT_DIR = "D:/MasterOfFreudsLLM/checkpoints/qwen_psych"
-DATA_DIR = "D:/MasterOfFreudsLLM/data_psychology"
-CACHE_DIR = "D:/MasterOfFreudsLLM/.cache"
+OUTPUT_DIR = os.path.join(ROOT_DIR, "checkpoints", "qwen_psych")
+DATA_DIR = os.path.join(ROOT_DIR, "data_psychology")
+CACHE_DIR = os.path.join(ROOT_DIR, ".cache")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.environ["HF_HOME"] = CACHE_DIR
 

@@ -3,8 +3,11 @@ Generate v4 data in user's unique style — based on their 5 annotations.
 Captures the authentic voice, structure, and phrasing patterns.
 """
 
+import os
 import json, os, random
-OUT_DIR = "D:/MasterOfFreudsLLM/data_psychology"
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT_DIR = os.path.join(ROOT_DIR, "data_psychology")
 os.makedirs(OUT_DIR, exist_ok=True)
 rng = random.Random(42)
 

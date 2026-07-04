@@ -12,6 +12,7 @@ Both GPUs:
 
 from __future__ import annotations
 
+import os
 import contextlib
 import math
 import time
@@ -27,7 +28,9 @@ from src.post_training.optim import configure_optimizer, cosine_lr
 from src.post_training.sft import sft_loss
 from src.post_training.utils import amp_autocast, load_backbone_from_ckpt, save_stage_ckpt, set_seed, unwrap
 
-DEV_PATH = "D:/MasterOfFreudsLLM/data_psychology/sft_psych_dev.h5"
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+DEV_PATH = os.path.join(ROOT_DIR, "data_psychology", "sft_psych_dev.h5")
 
 
 @torch.no_grad()

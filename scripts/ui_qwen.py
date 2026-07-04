@@ -9,7 +9,9 @@ import gradio as gr
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
-os.environ["HF_HOME"] = "D:/MasterOfFreudsLLM/.cache"
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+os.environ["HF_HOME"] = os.path.join(ROOT_DIR, ".cache")
 device = "cuda"
 
 print("🧠 Loading Master of Freud's LLM...")
@@ -21,7 +23,7 @@ model = AutoModelForCausalLM.from_pretrained(
     torch_dtype=torch.bfloat16,
     device_map="auto",
 )
-model = PeftModel.from_pretrained(model, "D:/MasterOfFreudsLLM/checkpoints/qwen_psych/best")
+model = PeftModel.from_pretrained(model, os.path.join(ROOT_DIR, "checkpoints", "qwen_psych", "best"))
 model.eval()
 print(f"✅ Loaded! {sum(p.numel() for p in model.parameters())/1e6:.0f}M params")
 

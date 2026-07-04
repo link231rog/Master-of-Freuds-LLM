@@ -3,10 +3,13 @@ Generate psychology SFT data directly in Qwen chat format (JSONL).
 This bypasses the old HDF5 pipeline entirely.
 """
 
+import os
 import json, os, random
 from pathlib import Path
 
-OUT_DIR = "D:/MasterOfFreudsLLM/data_psychology"
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+OUT_DIR = os.path.join(ROOT_DIR, "data_psychology")
 os.makedirs(OUT_DIR, exist_ok=True)
 
 # ── Conversation components ──

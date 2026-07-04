@@ -3,7 +3,9 @@ Master of Freud's LLM — Final Chat with RAG + Filter + Thinking
 """
 
 import os, torch, re
-os.environ["HF_HOME"] = "D:/MasterOfFreudsLLM/.cache"
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.environ["HF_HOME"] = os.path.join(ROOT_DIR, ".cache")
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 from scripts.rag_psychology import build_prompt_with_theory
@@ -13,9 +15,9 @@ tok = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-0.5B", trust_remote_code=True)
 tok.pad_token = tok.eos_token
 
 # Try v5 first, fall back to v4
-model_path = "D:/MasterOfFreudsLLM/checkpoints/qwen_psych_v5/final"
+model_path = os.path.join(ROOT_DIR, "checkpoints", "qwen_psych_v5", "final")
 if not os.path.exists(model_path):
-    model_path = "D:/MasterOfFreudsLLM/checkpoints/qwen_psych_v4/final"
+    model_path = os.path.join(ROOT_DIR, "checkpoints", "qwen_psych_v4", "final")
     print("⚠️ v5 not ready yet, using v4")
 
 model = PeftModel.from_pretrained(
